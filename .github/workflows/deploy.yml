@@ -1,0 +1,30 @@
+name: AECWebService CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-to-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Secure SSH Key & Hot Reload Containers
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/${{ secrets.REMOTE_USER }}/aecwebservice
+            git pull origin main
+            
+            export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+            export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+            
+            chmod +x deploy.sh
+            ./deploy.sh
