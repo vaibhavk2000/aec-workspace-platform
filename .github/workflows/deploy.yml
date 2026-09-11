@@ -20,11 +20,21 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
+            # Create project workspace directory on EC2 if it doesn't exist
+            mkdir -p /home/${{ secrets.REMOTE_USER }}/aecwebservice
             cd /home/${{ secrets.REMOTE_USER }}/aecwebservice
-            git pull origin main
             
+            # Pull fresh repository changes down from main
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com{{ github.repository }}.git .
+            fi
+            
+            # Inject production cloud environment secrets
             export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
             export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
             
+            # Assign execution rights and run the local automation script
             chmod +x deploy.sh
             ./deploy.sh
