@@ -1,9 +1,0 @@
-node_modules/
-build/
-dist/
-__pycache__/
-*.pyc
-.env
-backend/temp_uploads/*
-!backend/temp_uploads/.gitkeep
-.DS_Store
